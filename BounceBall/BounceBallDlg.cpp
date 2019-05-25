@@ -25,11 +25,25 @@ CBounceBallDlg::CBounceBallDlg(CWnd* pParent /*=nullptr*/)
 void CBounceBallDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_FRAME, mFrame);
+	DDX_Control(pDX, cEdit_CirleNum, mEdit_CircleNum);
+	DDX_Control(pDX, cScroll_Red, mScroll_Red);
+	DDX_Control(pDX, cScroll_Green, mScroll_Green);
+	DDX_Control(pDX, cScroll_Blue, mScroll_Blue);
+	DDX_Control(pDX, cEdit_Red, mEdit_Red);
+	DDX_Control(pDX, cEdit_Green, mEdit_Green);
+	DDX_Control(pDX, cEdit_Blue, mEdit_Blue);
+	DDX_Control(pDX, cEdit_SquareNum, mEdit_SquareNum);
 }
 
 BEGIN_MESSAGE_MAP(CBounceBallDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(cButton_CirDraw, &CBounceBallDlg::OnClickedCbuttonCirdraw)
+	ON_BN_CLICKED(cButton_RandomCircle, &CBounceBallDlg::OnClickedCbuttonRandomcircle)
+	ON_BN_CLICKED(cButton_RandomColor, &CBounceBallDlg::OnClickedCbuttonRandomcolor)
+	ON_BN_CLICKED(cButton_SquDraw, &CBounceBallDlg::OnClickedCbuttonSqudraw)
+	ON_BN_CLICKED(cButton_Start, &CBounceBallDlg::OnClickedCbuttonStart)
 END_MESSAGE_MAP()
 
 
@@ -85,3 +99,31 @@ HCURSOR CBounceBallDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CBounceBallDlg::OnClickedCbuttonCirdraw()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CBounceBallDlg::OnClickedCbuttonRandomcircle()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CBounceBallDlg::OnClickedCbuttonRandomcolor()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CBounceBallDlg::OnClickedCbuttonSqudraw()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CBounceBallDlg::OnClickedCbuttonStart()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}

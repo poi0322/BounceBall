@@ -30,4 +30,20 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	
+	afx_msg void OnClickedCbuttonCirdraw();
+	afx_msg void OnClickedCbuttonRandomcircle();
+	afx_msg void OnClickedCbuttonRandomcolor();
+	afx_msg void OnClickedCbuttonSqudraw();
+	afx_msg void OnClickedCbuttonStart();
+	CStatic mFrame;
+	CEdit mEdit_CircleNum;
+	CScrollBar mScroll_Red;
+	CScrollBar mScroll_Green;
+	CScrollBar mScroll_Blue;
+	CEdit mEdit_Red;
+	CEdit mEdit_Green;
+	CEdit mEdit_Blue;
+	CEdit mEdit_SquareNum;
 };
