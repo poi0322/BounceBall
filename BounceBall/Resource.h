@@ -17,7 +17,7 @@
 #define cEdit_Green                     1011
 #define cEdit_Blue                      1012
 #define IDC_FRAME                       1013
-#define cEdit_SquareNum                 1014
+#define cSlider_dx                      1017
 
 // Next default values for new objects
 // 
@@ -25,7 +25,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1018
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

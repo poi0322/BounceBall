@@ -2,6 +2,7 @@
 // BounceBallDlg.cpp: 구현 파일
 //
 
+
 #include "stdafx.h"
 #include "BounceBall.h"
 #include "BounceBallDlg.h"
@@ -11,10 +12,19 @@
 #define new DEBUG_NEW
 #endif
 
-
+using namespace std;
 // CBounceBallDlg 대화 상자
 
-
+int Ax;
+int Start;
+int RGB = RGB(0, 0, 0);
+void randRGB() {
+	RGB = RGB(
+		(BYTE)(rand() % 255),
+		(BYTE)(rand() % 255),
+		(BYTE)(rand() % 255)
+	);
+}
 
 CBounceBallDlg::CBounceBallDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_BOUNCEBALL_DIALOG, pParent)
@@ -33,7 +43,8 @@ void CBounceBallDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, cEdit_Red, mEdit_Red);
 	DDX_Control(pDX, cEdit_Green, mEdit_Green);
 	DDX_Control(pDX, cEdit_Blue, mEdit_Blue);
-	DDX_Control(pDX, cEdit_SquareNum, mEdit_SquareNum);
+	DDX_Control(pDX, cSlider_dx, mSlider_Dx);
+	DDX_Control(pDX, cButton_Start, mButton_Start);
 }
 
 BEGIN_MESSAGE_MAP(CBounceBallDlg, CDialog)
@@ -44,10 +55,23 @@ BEGIN_MESSAGE_MAP(CBounceBallDlg, CDialog)
 	ON_BN_CLICKED(cButton_RandomColor, &CBounceBallDlg::OnClickedCbuttonRandomcolor)
 	ON_BN_CLICKED(cButton_SquDraw, &CBounceBallDlg::OnClickedCbuttonSqudraw)
 	ON_BN_CLICKED(cButton_Start, &CBounceBallDlg::OnClickedCbuttonStart)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, cSlider_dx, &CBounceBallDlg::OnReleasedcaptureCsliderDx)
+	ON_WM_CREATE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
 // CBounceBallDlg 메시지 처리기
+
+int CBounceBallDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialog::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+	
+	return 0;
+}
 
 BOOL CBounceBallDlg::OnInitDialog()
 {
@@ -59,6 +83,13 @@ BOOL CBounceBallDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	mSlider_Dx.SetRange(0, 6);
+	mSlider_Dx.SetPos(3);
+	Ax = mSlider_Dx.GetPos()-3;
+
+	mScroll_Red.SetScrollRange(0, 255);
+	mScroll_Green.SetScrollRange(0, 255);
+	mScroll_Blue.SetScrollRange(0, 255);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -69,6 +100,8 @@ BOOL CBounceBallDlg::OnInitDialog()
 
 void CBounceBallDlg::OnPaint()
 {
+	//Invalidate();
+	/*
 	if (IsIconic())
 	{
 		CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
@@ -89,7 +122,15 @@ void CBounceBallDlg::OnPaint()
 	else
 	{
 		CDialog::OnPaint();
+
+	}*/
+	CPaintDC dc(this);
+	//int num = GetDlgItemInt(cEdit_CirleNum);
+	CDC* p = mFrame.GetDC();
+	for (vector<Object>::iterator i = ball.begin(); i != ball.end(); i++) {
+		p->Ellipse(GETXY(i));
 	}
+
 }
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
@@ -102,6 +143,29 @@ HCURSOR CBounceBallDlg::OnQueryDragIcon()
 void CBounceBallDlg::OnClickedCbuttonCirdraw()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString str;
+	int num = GetDlgItemInt(cEdit_CirleNum);
+	CRect rect;
+	mFrame.GetClientRect(&rect);
+	int nWidth = rect.Width();
+	int nHeight = rect.Height();
+	Object temp;
+
+	ball.clear();
+	for (int j = 0; j < num; j++) {
+		temp.xy.x = rand() % (nWidth - DEFAULT_RAD) + DEFAULT_RAD;
+		temp.xy.y = rand() % (nHeight - DEFAULT_RAD) + DEFAULT_RAD;
+		ball.push_back(temp);
+			for (int k = 0; k < j; k++) {
+				if ((ball.at(j).xy.x - ball.at(k).xy.x)*(ball.at(j).xy.x - ball.at(k).xy.x) + (ball.at(j).xy.y - ball.at(k).xy.y)*(ball.at(j).xy.y - ball.at(k).xy.y) < 80 * 80) { // 겹침
+					ball.pop_back();
+					j--;
+					break;
+				}
+			}
+	}
+	Invalidate();
+
 }
 
 
@@ -125,5 +189,103 @@ void CBounceBallDlg::OnClickedCbuttonSqudraw()
 
 void CBounceBallDlg::OnClickedCbuttonStart()
 {
+	CString str;
+	mButton_Start.GetWindowTextW(str);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	if (str == "Start!") {
+		for (int i = 0; i < ball.size(); i++) {
+			ball.at(i).move();
+		}
+
+		SetTimer(BALL_TIMER, 0, NULL);
+		mButton_Start.SetWindowTextW(_T("Stop!"));
+	}
+	else {
+		KillTimer(BALL_TIMER);
+		mButton_Start.SetWindowTextW(_T("Start!"));
+	}
+	Invalidate();
+}
+
+
+void CBounceBallDlg::OnReleasedcaptureCsliderDx(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Ax = mSlider_Dx.GetPos() - 3;
+	*pResult = 0;
+}
+
+
+
+void CBounceBallDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CClientDC dc(this);
+	CRect rect;
+	mFrame.GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
+	
+	int nWidth = rect.Width();
+	int nHeight = rect.Height();
+	
+	/*
+	int nWidth = rect.right - rect.left;
+	int nHeight = rect.top - rect.bottom;
+	*/
+	if (nIDEvent == BALL_TIMER) {
+		for (int i = 0; i < ball.size(); i++) {
+			ball.at(i).move();
+			ball.at(i).collision(nWidth, nHeight);
+			ball.at(i).gravity();
+		}
+		Invalidate();
+
+	}
+	
+	CDialog::OnTimer(nIDEvent);
+}
+
+
+void Object::move()
+{
+	xy.x += dx;
+	xy.y += dy;
+	action = ACTION_MOVE;
+}
+
+void Object::collision(int nWidth, int nHeight)
+{
+	if (xy.x - radius <= 0) { //왼쪽벽
+		LEFT();
+	}
+	if (xy.x + radius >= nWidth) { //오른쪽 벽
+		RIGHT();
+	}
+	if (xy.y + radius >= nHeight) { //바닥
+		STOP();
+	}
+
+}
+
+void Object::gravity()
+{
+	if (action==ACTION_MOVE) {
+		dy += GRAVITY;
+		dx += Ax;
+	}
+	if (action == ACTION_STOP) {
+		TO_NEG(dy);
+		dy *= elasticity; //탄성계수
+	}
+	if (action == LEFT_WALL) {
+		TO_POS(dx);
+		dx *= WALL_ELASTICITY;
+		dy += 1;
+	}
+	if (action == RIGHT_WALL) {
+		TO_NEG(dx);
+		dx *= WALL_ELASTICITY;
+		dy += 1;
+	}
 }
