@@ -109,4 +109,6 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 public:
 	void setRGBText();
+//	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };

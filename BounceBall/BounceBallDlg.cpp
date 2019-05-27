@@ -62,6 +62,8 @@ BEGIN_MESSAGE_MAP(CBounceBallDlg, CDialog)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, cSlider_dx, &CBounceBallDlg::OnReleasedcaptureCsliderDx)
 	ON_WM_CREATE()
 	ON_WM_TIMER()
+//	ON_WM_VSCROLL()
+	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -90,10 +92,17 @@ BOOL CBounceBallDlg::OnInitDialog()
 	mSlider_Dx.SetPos(3);
 	Ax = mSlider_Dx.GetPos()-3;
 
-	mScroll_Red.SetScrollRange(0, 255);
-	mScroll_Green.SetScrollRange(0, 255);
-	mScroll_Blue.SetScrollRange(0, 255);
 
+
+	mScroll_Red.SetScrollRange(0, 255);
+	mScroll_Red.SetScrollPos(0);
+	mScroll_Green.SetScrollRange(0, 255);
+	mScroll_Green.SetScrollPos(0);
+	mScroll_Blue.SetScrollRange(0, 255);
+	mScroll_Blue.SetScrollPos(0);
+	mScroll_Red.EnableScrollBar(ESB_ENABLE_BOTH);
+	mScroll_Green.EnableScrollBar(ESB_ENABLE_BOTH);
+	mScroll_Blue.EnableScrollBar(ESB_ENABLE_BOTH);
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -158,15 +167,18 @@ void CBounceBallDlg::OnClickedCbuttonCirdraw()
 	CString str;
 	int num = GetDlgItemInt(cEdit_CirleNum);
 	CRect rect;
-	mFrame.GetClientRect(&rect);
+	mFrame.GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
 	int nWidth = rect.Width();
 	int nHeight = rect.Height();
+
 	Object temp;
 
 	ball.clear();
 	for (int j = 0; j < num; j++) {
-		temp.xy.x = rand() % (nWidth - DEFAULT_RAD) + DEFAULT_RAD;
-		temp.xy.y = rand() % (nHeight - DEFAULT_RAD) + DEFAULT_RAD;
+		temp.xy.x = rand() % (nWidth - DEFAULT_RAD-DEFAULT_RAD) + DEFAULT_RAD;
+		temp.xy.y = rand() % (nHeight - DEFAULT_RAD - DEFAULT_RAD) + DEFAULT_RAD;
 		ball.push_back(temp);
 			for (int k = 0; k < j; k++) {
 				if ((ball.at(j).xy.x - ball.at(k).xy.x)*(ball.at(j).xy.x - ball.at(k).xy.x) + (ball.at(j).xy.y - ball.at(k).xy.y)*(ball.at(j).xy.y - ball.at(k).xy.y) < 80 * 80) { // 겹침
@@ -176,7 +188,6 @@ void CBounceBallDlg::OnClickedCbuttonCirdraw()
 				}
 			}
 	}
-	//Invalidate();
 
 }
 
@@ -184,6 +195,9 @@ void CBounceBallDlg::OnClickedCbuttonCirdraw()
 void CBounceBallDlg::OnClickedCbuttonRandomcircle()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+	SetDlgItemInt(cEdit_CirleNum, rand() % 10 + 1,1);
+	OnClickedCbuttonCirdraw();
 }
 
 
@@ -191,6 +205,10 @@ void CBounceBallDlg::OnClickedCbuttonRandomcolor()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	randRGB();
+	mScroll_Red.SetScrollPos(R);
+	mScroll_Green.SetScrollPos(G);
+	mScroll_Blue.SetScrollPos(B);
+
 	OnPaint();
 	//Invalidate();
 }
@@ -317,4 +335,40 @@ void Object::gravity()
 		dx *= WALL_ELASTICITY;
 		dy += 1;
 	}
+}
+
+
+
+
+
+void CBounceBallDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	switch (nSBCode)
+	{
+	case SB_LINELEFT:
+		pScrollBar->SetScrollPos(pScrollBar->GetScrollPos() - 1);
+		break;
+	case SB_LINERIGHT:
+		pScrollBar->SetScrollPos(pScrollBar->GetScrollPos() + 1);
+		break;
+	case SB_PAGELEFT:
+		pScrollBar->SetScrollPos(pScrollBar->GetScrollPos() - 30);
+		break;
+	case SB_PAGERIGHT:
+		pScrollBar->SetScrollPos(pScrollBar->GetScrollPos() + 30);
+		break;
+	case SB_THUMBTRACK:
+		pScrollBar->SetScrollPos(nPos);
+		break;
+	}
+	R = mScroll_Red.GetScrollPos();
+	G = mScroll_Green.GetScrollPos();
+	B = mScroll_Blue.GetScrollPos();
+	RGB = RGB(R, G, B);
+	OnPaint();
+
+
+	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }
