@@ -89,7 +89,6 @@ public:
 	afx_msg void OnClickedCbuttonCirdraw();
 	afx_msg void OnClickedCbuttonRandomcircle();
 	afx_msg void OnClickedCbuttonRandomcolor();
-	afx_msg void OnClickedCbuttonSqudraw();
 	afx_msg void OnClickedCbuttonStart();
 	CStatic mFrame;
 	CEdit mEdit_CircleNum;
@@ -99,7 +98,6 @@ public:
 	CEdit mEdit_Red;
 	CEdit mEdit_Green;
 	CEdit mEdit_Blue;
-	CEdit mEdit_SquareNum;
 	CSliderCtrl mSlider_Dx;
 	CButton mButton_Start;
 
@@ -109,5 +107,6 @@ public:
 	afx_msg void OnReleasedcaptureCsliderDx(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	
+public:
+	void setRGBText();
 };

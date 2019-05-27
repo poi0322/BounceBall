@@ -18,13 +18,18 @@ using namespace std;
 int Ax;
 int Start;
 int RGB = RGB(0, 0, 0);
+int R;
+int G;
+int B;
 void randRGB() {
-	RGB = RGB(
-		(BYTE)(rand() % 255),
-		(BYTE)(rand() % 255),
-		(BYTE)(rand() % 255)
-	);
+
+	R = (BYTE)(rand() % 255);
+	G = (BYTE)(rand() % 255);
+	B = (BYTE)(rand() % 255);
+
+	RGB = RGB(R, G, B);
 }
+
 
 CBounceBallDlg::CBounceBallDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_BOUNCEBALL_DIALOG, pParent)
@@ -53,7 +58,6 @@ BEGIN_MESSAGE_MAP(CBounceBallDlg, CDialog)
 	ON_BN_CLICKED(cButton_CirDraw, &CBounceBallDlg::OnClickedCbuttonCirdraw)
 	ON_BN_CLICKED(cButton_RandomCircle, &CBounceBallDlg::OnClickedCbuttonRandomcircle)
 	ON_BN_CLICKED(cButton_RandomColor, &CBounceBallDlg::OnClickedCbuttonRandomcolor)
-	ON_BN_CLICKED(cButton_SquDraw, &CBounceBallDlg::OnClickedCbuttonSqudraw)
 	ON_BN_CLICKED(cButton_Start, &CBounceBallDlg::OnClickedCbuttonStart)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, cSlider_dx, &CBounceBallDlg::OnReleasedcaptureCsliderDx)
 	ON_WM_CREATE()
@@ -69,7 +73,6 @@ int CBounceBallDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
-	
 	return 0;
 }
 
@@ -127,10 +130,18 @@ void CBounceBallDlg::OnPaint()
 	CPaintDC dc(this);
 	//int num = GetDlgItemInt(cEdit_CirleNum);
 	CDC* p = mFrame.GetDC();
+	CBrush brush, *oldbrush;
+
+	brush.CreateSolidBrush(RGB);
+	oldbrush = p->SelectObject(&brush);
 	for (vector<Object>::iterator i = ball.begin(); i != ball.end(); i++) {
+		p->SetDCBrushColor(RGB);
 		p->Ellipse(GETXY(i));
 	}
+	p->SelectObject(oldbrush);
+	brush.DeleteObject();
 
+	setRGBText();
 }
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
@@ -143,6 +154,7 @@ HCURSOR CBounceBallDlg::OnQueryDragIcon()
 void CBounceBallDlg::OnClickedCbuttonCirdraw()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Invalidate();
 	CString str;
 	int num = GetDlgItemInt(cEdit_CirleNum);
 	CRect rect;
@@ -164,7 +176,7 @@ void CBounceBallDlg::OnClickedCbuttonCirdraw()
 				}
 			}
 	}
-	Invalidate();
+	//Invalidate();
 
 }
 
@@ -178,12 +190,9 @@ void CBounceBallDlg::OnClickedCbuttonRandomcircle()
 void CBounceBallDlg::OnClickedCbuttonRandomcolor()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}
-
-
-void CBounceBallDlg::OnClickedCbuttonSqudraw()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	randRGB();
+	OnPaint();
+	//Invalidate();
 }
 
 
@@ -197,14 +206,14 @@ void CBounceBallDlg::OnClickedCbuttonStart()
 			ball.at(i).move();
 		}
 
-		SetTimer(BALL_TIMER, 0, NULL);
+		SetTimer(BALL_TIMER, 10, NULL);
 		mButton_Start.SetWindowTextW(_T("Stop!"));
 	}
 	else {
 		KillTimer(BALL_TIMER);
 		mButton_Start.SetWindowTextW(_T("Start!"));
 	}
-	Invalidate();
+	//Invalidate();
 }
 
 
@@ -224,7 +233,6 @@ void CBounceBallDlg::OnTimer(UINT_PTR nIDEvent)
 	CRect rect;
 	mFrame.GetWindowRect(&rect);
 	ScreenToClient(&rect);
-
 	
 	int nWidth = rect.Width();
 	int nHeight = rect.Height();
@@ -246,6 +254,19 @@ void CBounceBallDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
+void CBounceBallDlg::setRGBText()
+{
+	CString Red;
+	Red.Format(_T("%d"), R);
+	CString Green;
+	Green.Format(_T("%d"), G);
+	CString Blue;
+	Blue.Format(_T("%d"), B);
+	mEdit_Red.SetWindowTextW(Red);
+	mEdit_Green.SetWindowTextW(Green);
+	mEdit_Blue.SetWindowTextW(Blue);
+}
+
 
 void Object::move()
 {
@@ -258,9 +279,17 @@ void Object::collision(int nWidth, int nHeight)
 {
 	if (xy.x - radius <= 0) { //왼쪽벽
 		LEFT();
+		if (xy.x + radius  <= -10)
+		{
+			xy.x = 0 + radius;
+		}
 	}
 	if (xy.x + radius >= nWidth) { //오른쪽 벽
 		RIGHT();
+		if (xy.x + radius + 10 >= nWidth)
+		{
+			xy.x = nWidth - radius;
+		}
 	}
 	if (xy.y + radius >= nHeight) { //바닥
 		STOP();
